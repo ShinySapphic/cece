@@ -4,7 +4,7 @@ An ECS library written in Kotlin.
 ## What is ECS?
 ECS stands for Entity Component System. In ECS, entities are nothing more than an ID. They may hold components (data) and systems can implement behavior on entities with a specific set of data. It is used as an alternative to Object Oriented Programming and is extremely useful in projects where you might have a large hierachy of classes. ECS promotes composition over inheritance.
 
-## Why's it called Cece?
+## Why is it called Cece?
 Cece is named after my dog who is fairly small, much like this libray.
 
 ## Why build this project?
