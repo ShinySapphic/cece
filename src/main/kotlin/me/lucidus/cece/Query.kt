@@ -1,4 +1,4 @@
-package com.nexus.nexusnpcs.ecs
+package me.lucidus.cece
 
 class Query private constructor(private val entities: MutableList<Entity>, private val components: Array<out ComponentClass>) : Iterable<Entity> {
 

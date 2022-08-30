@@ -1,6 +1,6 @@
-package com.nexus.nexusnpcs.ecs.archetype
+package me.lucidus.cece.archetype
 
-import com.nexus.nexusnpcs.ecs.Component
+import me.lucidus.cece.Component
 
 class Archetype(
     // Holds component ids

@@ -1,24 +1,24 @@
-package com.nexus.nexusnpcs.ecs
+package me.lucidus.cece
 
 open class Entity(private val engine: Engine) {
     val id = count++
 
-    fun addComponent(component: Component): Entity  {
-        engine.addComponent(this, component)
+    fun addComponent(component: Component): Entity {
+        Engine.addComponent(this, component)
         return this
     }
 
     fun removeComponent(componentClass: ComponentClass): Entity {
-        engine.removeComponent(this, componentClass)
+        Engine.removeComponent(this, componentClass)
         return this
     }
 
     fun hasComponent(componentClass: ComponentClass): Boolean {
-        return engine.hasComponent(this, componentClass)
+        return Engine.hasComponent(this, componentClass)
     }
 
     fun <T : Component?> getComponent(componentClass: ComponentClass): T? {
-        return engine.getComponent(this, componentClass)
+        return Engine.getComponent(this, componentClass)
     }
 
     companion object {

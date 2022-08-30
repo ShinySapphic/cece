@@ -1,6 +1,6 @@
-import com.nexus.nexusnpcs.ecs.Component
-import com.nexus.nexusnpcs.ecs.Engine
-import com.nexus.nexusnpcs.ecs.Entity
+import me.lucidus.cece.Component
+import me.lucidus.cece.Engine
+import me.lucidus.cece.Entity
 import org.junit.Test
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue

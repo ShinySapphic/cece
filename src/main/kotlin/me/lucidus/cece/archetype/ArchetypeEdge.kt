@@ -1,3 +1,3 @@
-package com.nexus.nexusnpcs.ecs.archetype
+package me.lucidus.cece.archetype
 
 class ArchetypeEdge(val add: Archetype, val remove: Archetype)

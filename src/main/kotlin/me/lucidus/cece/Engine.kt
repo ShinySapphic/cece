@@ -1,9 +1,8 @@
-package com.nexus.nexusnpcs.ecs
+package me.lucidus.cece
 
-import com.nexus.nexusnpcs.ecs.archetype.Archetype
-import com.nexus.nexusnpcs.ecs.archetype.ArchetypeEdge
+import me.lucidus.cece.archetype.Archetype
+import me.lucidus.cece.archetype.ArchetypeEdge
 import java.util.logging.ConsoleHandler
-import java.util.logging.Handler
 import java.util.logging.Level
 import java.util.logging.Logger
 

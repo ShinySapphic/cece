@@ -1,4 +1,4 @@
-package com.nexus.nexusnpcs.ecs
+package me.lucidus.cece
 
 class ComponentType private constructor() {
     val id: Int = count++
