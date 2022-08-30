@@ -22,6 +22,6 @@ open class Entity(private val engine: Engine) {
     }
 
     companion object {
-        var count = 0;
+        var count = 0
     }
 }
