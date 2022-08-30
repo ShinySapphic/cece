@@ -4,4 +4,8 @@ abstract class AbstractSystem @JvmOverloads constructor(val query: Query, intern
     open fun update(deltaTime: Float) {
 
     }
+
+    internal fun onAddedToEngine(engine: Engine) {
+        query.populate(engine)
+    }
 }

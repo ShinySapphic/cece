@@ -7,7 +7,7 @@ import kotlin.test.assertTrue
 
 internal class ComponentTest {
 
-    private val engine = Engine
+    private val engine = Engine()
 
     @Test
     fun testAddComponent() {
@@ -67,7 +67,4 @@ internal class ComponentTest {
         engine.addEntity(entity)
         return entity
     }
-
-    private class HelloComponent(val message: String) : Component
-    private class FavoriteNumComponent(val value: Int) : Component
 }

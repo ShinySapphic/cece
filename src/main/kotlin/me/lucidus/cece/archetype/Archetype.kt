@@ -29,4 +29,3 @@ class Archetype(
 
 // holds component values with the component id as the key
 typealias ComponentMap = MutableMap<Int, Component>
-typealias ComponentPair = Pair<Int, Int>

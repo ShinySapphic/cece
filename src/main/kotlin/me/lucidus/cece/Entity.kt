@@ -4,21 +4,21 @@ open class Entity(private val engine: Engine) {
     val id = count++
 
     fun addComponent(component: Component): Entity {
-        Engine.addComponent(this, component)
+        engine.addComponent(this, component)
         return this
     }
 
     fun removeComponent(componentClass: ComponentClass): Entity {
-        Engine.removeComponent(this, componentClass)
+        engine.removeComponent(this, componentClass)
         return this
     }
 
     fun hasComponent(componentClass: ComponentClass): Boolean {
-        return Engine.hasComponent(this, componentClass)
+        return engine.hasComponent(this, componentClass)
     }
 
     fun <T : Component?> getComponent(componentClass: ComponentClass): T? {
-        return Engine.getComponent(this, componentClass)
+        return engine.getComponent(this, componentClass)
     }
 
     companion object {

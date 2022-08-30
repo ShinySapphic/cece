@@ -6,7 +6,7 @@ import java.util.logging.ConsoleHandler
 import java.util.logging.Level
 import java.util.logging.Logger
 
-object Engine {
+class Engine {
     private val logger = Logger.getLogger(Engine::class.java.name)
 
     private val entityIndex = HashMap<Int, Archetype>()
@@ -28,6 +28,7 @@ object Engine {
     }
 
     fun registerSystem(system: AbstractSystem): Engine {
+        system.onAddedToEngine(this)
         systems.add(system)
         systems.sortBy { system.priority }
         return this
@@ -42,8 +43,11 @@ object Engine {
     /**
      * Creates a new entity and adds them to the engine automatically
      */
-    fun createEntity() {
-        addEntity(Entity(this))
+    fun createEntity(): Entity {
+        val ent = Entity(this)
+        addEntity(ent)
+
+        return ent
     }
 
     /**
