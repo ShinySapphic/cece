@@ -10,6 +10,7 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="cece" target="16" />
       <module name="mainModule" target="16" />
     </bytecodeTargetLevel>
   </component>
