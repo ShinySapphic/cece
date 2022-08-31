@@ -1,6 +1,6 @@
 package me.lucidus.cece
 
-class Query private constructor(private val components: MutableList<ComponentClass>) : Iterable<Entity> {
+class Query private constructor(private val include: MutableList<ComponentClass>, private val exclude: MutableList<ComponentClass>) : Iterable<Entity> {
     private val entities = mutableListOf<Entity>()
 
     fun contains(entity: Entity): Boolean {
@@ -11,22 +11,30 @@ class Query private constructor(private val components: MutableList<ComponentCla
      * Populates this query from its parameters
      */
     fun populate(engine: Engine) {
-        for (ent in engine.getEntities()) {
-            if (!checkEntity(ent, components))
-                continue
-            entities.add(ent)
-        }
+        for (ent in engine.getEntities())
+            validate(ent)
     }
 
     /**
-     * Checks that this entity contains all this queries components and adds to the list if so.
+     * Checks that this entity meets the query's requirements and adds to the list if so.
+     * If this entity has been modified and no longer meets requirements, it will be removed.
      */
-    internal fun checkAdd(entity: Entity) {
-        if (checkEntity(entity, components))
-            entities.add(entity)
+    fun validate(entity: Entity) {
+        for (comp in exclude) {
+            if (entity.hasComponent(comp)) {
+                entities.remove(entity)
+                return
+            }
+        }
+
+        if (hasComponents(entity, include)) {
+            if (!entities.contains(entity))
+                entities.add(entity)
+        } else
+            entities.remove(entity)
     }
 
-    private fun checkEntity(entity: Entity, components: MutableList<ComponentClass>): Boolean {
+    private fun hasComponents(entity: Entity, components: MutableList<ComponentClass>): Boolean {
         var hasAllComps = true
 
         for (comp in components) {
@@ -36,10 +44,6 @@ class Query private constructor(private val components: MutableList<ComponentCla
             }
         }
         return hasAllComps
-    }
-
-    internal fun remove(entity: Entity) {
-        entities.remove(entity)
     }
 
     override fun iterator(): Iterator<Entity> {
@@ -77,7 +81,7 @@ class Query private constructor(private val components: MutableList<ComponentCla
             }
 
             fun get(): Query {
-                return Query(include)
+                return Query(include, exclude)
             }
         }
     }

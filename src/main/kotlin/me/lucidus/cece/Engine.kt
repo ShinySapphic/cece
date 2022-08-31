@@ -18,15 +18,6 @@ class Engine {
 
     private val entities = mutableListOf<Entity>()
 
-    init {
-        logger.level = Level.FINER
-
-        val handler = ConsoleHandler()
-
-        handler.level = Level.FINER
-        logger.addHandler(handler)
-    }
-
     fun registerSystem(system: AbstractSystem): Engine {
         system.onAddedToEngine(this)
         systems.add(system)
@@ -65,7 +56,7 @@ class Engine {
         entities.add(entity)
 
         for (system in systems)
-            system.query.checkAdd(entity)
+            system.query.validate(entity)
 
         logger.info("Entity #${entity.id} successfully added")
     }
@@ -86,7 +77,7 @@ class Engine {
             removeComponent(entity.id, compId)
 
         for (system in systems)
-            system.query.remove(entity)
+            system.query.validate(entity)
 
         entities.remove(entity)
 
@@ -98,7 +89,7 @@ class Engine {
 
         // Update queries
         for (system in systems)
-            system.query.checkAdd(entity)
+            system.query.validate(entity)
     }
 
     fun removeComponent(entity: Entity, componentClass: ComponentClass) {
@@ -106,7 +97,7 @@ class Engine {
 
         // Update queries
         for (system in systems)
-            system.query.remove(entity)
+            system.query.validate(entity)
     }
 
     fun <T : Component?> getComponent(entity: Entity, componentClass: ComponentClass): T? {
@@ -208,6 +199,15 @@ class Engine {
 
     fun getEntities(): List<Entity> {
         return entities
+    }
+
+    init {
+        logger.level = Level.WARNING
+
+//        val handler = ConsoleHandler()
+//
+//        handler.level = Level.FINER
+//        logger.addHandler(handler)
     }
 }
 
