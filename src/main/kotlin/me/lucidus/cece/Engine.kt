@@ -14,19 +14,24 @@ class Engine {
     // list of archetypes that contain this component id
     private val componentIndex = HashMap<Int, Archetypes>()
 
-    private val systems = mutableListOf<AbstractSystem>()
+    private val systems = mutableListOf<(Pair<Int, AbstractSystem>)>()
 
     private val entities = mutableListOf<Entity>()
 
     fun registerSystem(system: AbstractSystem): Engine {
+        return registerSystem(0, system)
+    }
+
+    fun registerSystem(priority: Int, system: AbstractSystem): Engine {
         system.onAddedToEngine(this)
-        systems.add(system)
-        systems.sortBy { system.priority }
+        val pair = Pair(priority, system)
+        systems.add(pair)
+        systems.sortBy { it.first }
         return this
     }
 
     fun update(deltaTime: Float = 0f) {
-        for (system in systems) {
+        for ((_, system) in systems) {
             system.update(deltaTime)
         }
     }
@@ -55,7 +60,7 @@ class Engine {
         entityIndex[entity.id] = Archetype.EMPTY
         entities.add(entity)
 
-        for (system in systems)
+        for ((_, system) in systems)
             system.query.validate(entity)
 
         logger.info("Entity #${entity.id} successfully added")
@@ -76,7 +81,7 @@ class Engine {
         for (compId in archetype.type)
             removeComponent(entity.id, compId)
 
-        for (system in systems)
+        for ((_, system) in systems)
             system.query.validate(entity)
 
         entities.remove(entity)
@@ -88,7 +93,7 @@ class Engine {
         addComponent(entity.id, component)
 
         // Update queries
-        for (system in systems)
+        for ((_, system) in systems)
             system.query.validate(entity)
     }
 
@@ -96,7 +101,7 @@ class Engine {
         removeComponent(entity.id, ComponentType.getFor(componentClass ?: return).id)
 
         // Update queries
-        for (system in systems)
+        for ((_, system) in systems)
             system.query.validate(entity)
     }
 

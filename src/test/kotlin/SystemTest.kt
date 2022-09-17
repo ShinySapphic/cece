@@ -1,5 +1,4 @@
 import me.lucidus.cece.AbstractSystem
-import me.lucidus.cece.Component
 import me.lucidus.cece.Engine
 import me.lucidus.cece.Query
 import org.junit.Test
@@ -37,11 +36,11 @@ internal class SystemTest {
 
     private fun registerSystems(engine: Engine) {
         engine.registerSystem(HelloSystem())
-        engine.registerSystem(MultiplySystem())
+        engine.registerSystem(-5, MultiplySystem())
         engine.registerSystem(AddByFiveSystem())
 
         // With a priority of 5, this should always be called last
-        engine.registerSystem(PrintNumSystem())
+        engine.registerSystem(5, PrintNumSystem())
     }
 
     // Systems
@@ -51,6 +50,7 @@ internal class SystemTest {
         private var isFinished = false
 
         override fun update(deltaTime: Float) {
+            println("HelloSystem: 1")
             if (isFinished)
                 return
             for (ent in query) {
@@ -61,8 +61,9 @@ internal class SystemTest {
         }
     }
 
-    class PrintNumSystem : AbstractSystem(Query.with(FavoriteNumComponent::class.java).get(), 5) {
+    class PrintNumSystem : AbstractSystem(Query.with(FavoriteNumComponent::class.java).get()) {
         override fun update(deltaTime: Float) {
+            println("PrintNumSystem: 4 (I should be last)")
             for (ent in query) {
                 val myNum = ent.getComponent<FavoriteNumComponent>(FavoriteNumComponent::class.java)
                 println("ent: ${ent.id} My favorite number is: ${myNum!!.value}")
@@ -72,6 +73,7 @@ internal class SystemTest {
 
     class MultiplySystem : AbstractSystem(Query.with(FavoriteNumComponent::class.java, MultiplierComponent::class.java).get()) {
         override fun update(deltaTime: Float) {
+            println("MultiplySystem: 2 ( I should be first now)")
             for (ent in query) {
                 val myNum = ent.getComponent<FavoriteNumComponent>(FavoriteNumComponent::class.java)
                 val multiplier = ent.getComponent<MultiplierComponent>(MultiplierComponent::class.java)
@@ -82,6 +84,7 @@ internal class SystemTest {
 
     class AddByFiveSystem : AbstractSystem(Query.with(FavoriteNumComponent::class.java).without(MultiplierComponent::class.java).get()) {
         override fun update(deltaTime: Float) {
+            println("AddByFiveSystem: 3")
             for (ent in query) {
                 val myNum = ent.getComponent<FavoriteNumComponent>(FavoriteNumComponent::class.java)
                 myNum!!.value += 5

@@ -1,6 +1,6 @@
 package me.lucidus.cece
 
-abstract class AbstractSystem @JvmOverloads constructor(val query: Query, val priority: Int = 0) {
+abstract class AbstractSystem constructor(val query: Query) {
     open fun update(deltaTime: Float) {
 
     }
