@@ -20,7 +20,13 @@ class Engine {
     }
 
     fun registerSystem(priority: Int, system: AbstractSystem): Engine {
-        system.onAddedToEngine(this)
+
+        // Populate query
+        for (query in system.queries) {
+            for (entity in entities)
+                query.validate(entity)
+        }
+
         val pair = Pair(priority, system)
         systems.add(pair)
         systems.sortBy { it.first }

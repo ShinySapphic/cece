@@ -4,15 +4,16 @@ class Query private constructor(private val include: MutableList<ComponentClass>
     private val entities = mutableListOf<Entity>()
 
     fun contains(entity: Entity): Boolean {
-        return entities.contains(entity)
-    }
+        for (comp in exclude) {
+            if (entity.hasComponent(comp))
+                return false
+        }
 
-    /**
-     * Populates this query from its parameters
-     */
-    fun populate(engine: Engine) {
-        for (ent in engine.getEntities())
-            validate(ent)
+        for (comp in include) {
+            if (!entity.hasComponent(comp))
+                return false
+        }
+        return true
     }
 
     /**
@@ -20,30 +21,10 @@ class Query private constructor(private val include: MutableList<ComponentClass>
      * If this entity has been modified and no longer meets requirements, it will be removed.
      */
     fun validate(entity: Entity) {
-        for (comp in exclude) {
-            if (entity.hasComponent(comp)) {
-                entities.remove(entity)
-                return
-            }
-        }
-
-        if (hasComponents(entity, include)) {
-            if (!entities.contains(entity))
-                entities.add(entity)
-        } else
+        if (contains(entity))
+            entities.add(entity)
+        else
             entities.remove(entity)
-    }
-
-    private fun hasComponents(entity: Entity, components: MutableList<ComponentClass>): Boolean {
-        var hasAllComps = true
-
-        for (comp in components) {
-            if (!entity.hasComponent(comp)) {
-                hasAllComps = false
-                break
-            }
-        }
-        return hasAllComps
     }
 
     override fun iterator(): Iterator<Entity> {

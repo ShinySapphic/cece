@@ -7,9 +7,4 @@ abstract class AbstractSystem constructor(vararg query: Query) {
     open fun update(deltaTime: Float) {
 
     }
-
-    internal fun onAddedToEngine(engine: Engine) {
-        for (query in queries)
-            query.populate(engine)
-    }
 }
