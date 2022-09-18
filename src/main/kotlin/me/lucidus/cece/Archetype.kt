@@ -1,6 +1,4 @@
-package me.lucidus.cece.archetype
-
-import me.lucidus.cece.Component
+package me.lucidus.cece
 
 class Archetype(
     // Holds component ids
@@ -26,6 +24,8 @@ class Archetype(
     }
 
 }
+
+class ArchetypeEdge(val add: Archetype, val remove: Archetype)
 
 // holds component values with the component id as the key
 typealias ComponentMap = MutableMap<Int, Component>

@@ -1,8 +1,5 @@
 package me.lucidus.cece
 
-import me.lucidus.cece.archetype.Archetype
-import me.lucidus.cece.archetype.ArchetypeEdge
-import java.util.logging.ConsoleHandler
 import java.util.logging.Level
 import java.util.logging.Logger
 
