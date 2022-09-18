@@ -1,11 +1,15 @@
 package me.lucidus.cece
 
-abstract class AbstractSystem constructor(val query: Query) {
+abstract class AbstractSystem constructor(vararg query: Query) {
+
+    val queries: Array<Query> = arrayOf(*query)
+
     open fun update(deltaTime: Float) {
 
     }
 
     internal fun onAddedToEngine(engine: Engine) {
-        query.populate(engine)
+        for (query in queries)
+            query.populate(engine)
     }
 }

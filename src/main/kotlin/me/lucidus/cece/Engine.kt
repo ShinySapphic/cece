@@ -57,8 +57,7 @@ class Engine {
         entityIndex[entity.id] = Archetype.EMPTY
         entities.add(entity)
 
-        for ((_, system) in systems)
-            system.query.validate(entity)
+        validateQueries(entity)
 
         logger.info("Entity #${entity.id} successfully added")
     }
@@ -78,8 +77,7 @@ class Engine {
         for (compId in archetype.type)
             removeComponent(entity.id, compId)
 
-        for ((_, system) in systems)
-            system.query.validate(entity)
+        validateQueries(entity)
 
         entities.remove(entity)
 
@@ -89,17 +87,13 @@ class Engine {
     fun addComponent(entity: Entity, component: Component) {
         addComponent(entity.id, component)
 
-        // Update queries
-        for ((_, system) in systems)
-            system.query.validate(entity)
+        validateQueries(entity)
     }
 
     fun removeComponent(entity: Entity, componentClass: ComponentClass) {
         removeComponent(entity.id, ComponentType.getFor(componentClass ?: return).id)
 
-        // Update queries
-        for ((_, system) in systems)
-            system.query.validate(entity)
+        validateQueries(entity)
     }
 
     fun <T : Component?> getComponent(entity: Entity, componentClass: ComponentClass): T? {
@@ -108,6 +102,13 @@ class Engine {
 
     fun hasComponent(entity: Entity, componentClass: ComponentClass): Boolean {
         return hasComponent(entity.id, ComponentType.getFor(componentClass ?: return false).id)
+    }
+
+    private fun validateQueries(entity: Entity) {
+        for ((_, system) in systems) {
+            for (query in system.queries)
+                query.validate(entity)
+        }
     }
 
     private fun updateIndexes(ent: Int, newArchetype: Archetype) {
