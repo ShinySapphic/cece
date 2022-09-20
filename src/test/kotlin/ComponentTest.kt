@@ -1,6 +1,4 @@
-import me.lucidus.cece.Component
 import me.lucidus.cece.Engine
-import me.lucidus.cece.Entity
 import org.junit.Test
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
@@ -11,7 +9,7 @@ internal class ComponentTest {
 
     @Test
     fun testAddComponent() {
-        val entity = addNewEntity()
+        val entity = engine.createEntity()
         val component = HelloComponent("Howdy!")
 
         entity.addComponent(component)
@@ -20,7 +18,7 @@ internal class ComponentTest {
 
     @Test
     fun testGetComponent() {
-        val entity = addNewEntity()
+        val entity = engine.createEntity()
         val component = HelloComponent("Hello World!")
 
         entity.addComponent(component)
@@ -33,8 +31,8 @@ internal class ComponentTest {
 
     @Test
     fun testGetMultiple() {
-        val entA = addNewEntity()
-        val entB = addNewEntity()
+        val entA = engine.createEntity()
+        val entB = engine.createEntity()
 
         entA.addComponent(HelloComponent("Look, I'm Woody! Howdy howdy howdy."))
         entB.addComponent(HelloComponent("Gimme that"))
@@ -60,11 +58,5 @@ internal class ComponentTest {
         assertNotNull(numB)
         println("Well mine is ${numB.value}!")
 
-    }
-
-    private fun addNewEntity(): Entity {
-        val entity = Entity(engine)
-        engine.addEntity(entity)
-        return entity
     }
 }

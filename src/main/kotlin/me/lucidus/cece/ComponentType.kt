@@ -1,11 +1,11 @@
 package me.lucidus.cece
 
 class ComponentType private constructor() {
-    val id: Int = count++
+    val id: UInt = count++
 
     companion object {
         private val types = HashMap<Class<out Component?>, ComponentType>()
-        private var count = 0
+        private var count = 0u
 
         @JvmStatic
         fun getFor(component: Class<out Component>): ComponentType {

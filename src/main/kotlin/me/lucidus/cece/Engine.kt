@@ -7,10 +7,10 @@ import java.util.logging.Logger
 class Engine {
     private val logger = Logger.getLogger(Engine::class.java.name)
 
-    private val entityIndex = HashMap<Int, Archetype>()
+    private val entityIndex = HashMap<UInt, Archetype>()
 
     // list of archetypes that contain this component id
-    private val componentIndex = HashMap<Int, Archetypes>()
+    private val componentIndex = HashMap<UInt, Archetypes>()
 
     private val queries = HashSet<Query>()
 
@@ -75,10 +75,7 @@ class Engine {
             return
         }
 
-        if (entityIndex[entity.id] == null)
-            entityIndex[entity.id] = Archetype.EMPTY
-
-        entities.add(entity)
+        entityIndex[entity.id] = Archetype.EMPTY
         validateQuery(entity)
 
         logger.info("Entity #${entity.id} successfully added")
@@ -91,7 +88,7 @@ class Engine {
      */
     fun removeEntity(entity: Entity) {
         if (!entities.contains(entity)) {
-            logger.warning("Entity #${entity.id} isn't registered and doesn't need removal")
+            logger.warning("Attempting to remove an entity that isn't registered.")
             return
         }
 
@@ -129,13 +126,13 @@ class Engine {
     private fun validateQuery(entity: Entity) {
         for (query in queries) {
             if (query.contains(entity) && !query.entities.contains(entity))
-                entities.add(entity)
+                query.entities.add(entity)
             else
-                entities.remove(entity)
+                query.entities.remove(entity)
         }
     }
 
-    private fun updateIndexes(ent: Int, newArchetype: Archetype) {
+    private fun updateIndexes(ent: UInt, newArchetype: Archetype) {
 
         // Update entity archetype
         entityIndex[ent] = newArchetype
@@ -154,7 +151,7 @@ class Engine {
         }
     }
 
-    private fun removeComponent(ent: Int, componentId: Int) {
+    private fun removeComponent(ent: UInt, componentId: UInt) {
         val archetype = entityIndex[ent] ?: return
 
         logger.fine("Removing component: $componentId from entity: $ent")
@@ -162,7 +159,7 @@ class Engine {
         // Find or create new archetype
         val newArchetype: Archetype
         if (!archetype.edges.containsKey(componentId)) {
-            val type: Set<Int> = archetype.type - componentId
+            val type: Set<UInt> = archetype.type - componentId
             newArchetype = Archetype(type, archetype.components)
 
             val edge = ArchetypeEdge(archetype, newArchetype)
@@ -179,7 +176,7 @@ class Engine {
         logger.fine("Successfully removed component: $componentId from entity: $ent")
     }
 
-    private fun addComponent(ent: Int, component: Component) {
+    private fun addComponent(ent: UInt, component: Component) {
         val archetype = entityIndex[ent] ?: return
         val componentId = ComponentType.getFor(component.javaClass).id
 
@@ -188,7 +185,7 @@ class Engine {
         // Find or create new archetype
         val newArchetype: Archetype
         if (!archetype.edges.containsKey(componentId)) {
-            val type: Set<Int> = archetype.type + componentId
+            val type: Set<UInt> = archetype.type + componentId
 
             newArchetype = Archetype(type, archetype.components)
 
@@ -209,7 +206,7 @@ class Engine {
     }
 
     @Suppress("unchecked_cast")
-    private fun <T : Component?> getComponent(ent: Int, componentId: Int): T? {
+    private fun <T : Component?> getComponent(ent: UInt, componentId: UInt): T? {
         if (!hasComponent(ent, componentId))
             return null
 
@@ -217,15 +214,11 @@ class Engine {
         return archetype!!.components[ent]!![componentId] as T
     }
 
-    private fun hasComponent(ent: Int, componentId: Int): Boolean {
+    private fun hasComponent(ent: UInt, componentId: UInt): Boolean {
         val archetype = entityIndex[ent]
         val archetypes = componentIndex[componentId]
 
         return archetypes?.contains(archetype?.id) ?: false
-    }
-
-    fun getEntities(): List<Entity> {
-        return entities
     }
 
     init {
@@ -238,5 +231,5 @@ class Engine {
     }
 }
 
-typealias Archetypes = MutableSet<Int>
+typealias Archetypes = MutableSet<UInt>
 typealias ComponentClass = Class<out Component>?
