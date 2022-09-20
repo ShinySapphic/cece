@@ -17,6 +17,8 @@ class Engine {
     private val systems = mutableListOf<(Pair<Int, AbstractSystem>)>()
     private val entities = mutableListOf<Entity>()
 
+    private val modified = mutableListOf<Entity>()
+
     private var isUpdating = false
 
     fun registerSystem(system: AbstractSystem): Engine {
@@ -48,9 +50,24 @@ class Engine {
         if (isUpdating)
             throw IllegalStateException("Cannot call update more than once at a time.")
         isUpdating = true
-        for ((_, system) in systems) {
+
+        for ((_, system) in systems)
             system.update(deltaTime)
+
+        // Update queries for modified entities
+        val iter = modified.iterator()
+        while (iter.hasNext()) {
+            val ent = iter.next()
+
+            for (query in queries) {
+                if (query.contains(ent) && !query.entities.contains(ent))
+                    query.entities.add(ent)
+                else
+                    query.entities.remove(ent)
+            }
+            iter.remove()
         }
+
         isUpdating = false
     }
 
@@ -77,6 +94,8 @@ class Engine {
 
         entityIndex[entity.id] = Archetype.EMPTY
         validateQuery(entity)
+
+        entities.add(entity)
 
         logger.info("Entity #${entity.id} successfully added")
     }
