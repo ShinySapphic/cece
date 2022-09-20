@@ -143,12 +143,8 @@ class Engine {
     }
 
     private fun validateQuery(entity: Entity) {
-        for (query in queries) {
-            if (query.contains(entity) && !query.entities.contains(entity))
-                query.entities.add(entity)
-            else
-                query.entities.remove(entity)
-        }
+        if (!modified.contains(entity))
+            modified.add(entity)
     }
 
     private fun updateIndexes(ent: UInt, newArchetype: Archetype) {
