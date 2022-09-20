@@ -1,4 +1,4 @@
-import me.lucidus.cece.AbstractSystem
+import me.lucidus.cece.EcsSystem
 import me.lucidus.cece.Engine
 import me.lucidus.cece.Query
 import org.junit.Test
@@ -49,7 +49,7 @@ internal class SystemTest {
     }
 
     // Systems
-    class HelloSystem : AbstractSystem(Query.with(HelloComponent::class.java).get()) {
+    class HelloSystem : EcsSystem(Query.with(HelloComponent::class.java).get()) {
 
         // Only run this system once
         private var isFinished = false
@@ -66,7 +66,7 @@ internal class SystemTest {
         }
     }
 
-    class PrintNumSystem : AbstractSystem(Query.with(FavoriteNumComponent::class.java).get()) {
+    class PrintNumSystem : EcsSystem(Query.with(FavoriteNumComponent::class.java).get()) {
         override fun update(deltaTime: Float) {
             println("PrintNumSystem: 4 (I should be last)")
             for (ent in queries[0]) {
@@ -76,7 +76,7 @@ internal class SystemTest {
         }
     }
 
-    class MultiplySystem : AbstractSystem(Query.with(FavoriteNumComponent::class.java, MultiplierComponent::class.java).get()) {
+    class MultiplySystem : EcsSystem(Query.with(FavoriteNumComponent::class.java, MultiplierComponent::class.java).get()) {
         override fun update(deltaTime: Float) {
             println("MultiplySystem: 2 ( I should be first now)")
             for (ent in queries[0]) {
@@ -87,7 +87,7 @@ internal class SystemTest {
         }
     }
 
-    class AddByFiveSystem : AbstractSystem(Query.with(FavoriteNumComponent::class.java).without(MultiplierComponent::class.java).get()) {
+    class AddByFiveSystem : EcsSystem(Query.with(FavoriteNumComponent::class.java).without(MultiplierComponent::class.java).get()) {
         override fun update(deltaTime: Float) {
             println("AddByFiveSystem: 3")
             for (ent in queries[0]) {
@@ -97,7 +97,7 @@ internal class SystemTest {
         }
     }
 
-    class MultiQuery : AbstractSystem(Query.with(CoolComponent::class.java, FavoriteNumComponent::class.java).get(), Query.with(LameComponent::class.java).get()) {
+    class MultiQuery : EcsSystem(Query.with(CoolComponent::class.java, FavoriteNumComponent::class.java).get(), Query.with(LameComponent::class.java).get()) {
         override fun update(deltaTime: Float) {
             for (entA in queries[0]) {
                 val myNum = entA.getComponent<FavoriteNumComponent>(FavoriteNumComponent::class.java)

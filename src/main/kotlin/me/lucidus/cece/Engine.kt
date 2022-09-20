@@ -14,18 +14,18 @@ class Engine {
 
     private val queries = HashSet<Query>()
 
-    private val systems = mutableListOf<(Pair<Int, AbstractSystem>)>()
+    private val systems = mutableListOf<(Pair<Int, EcsSystem>)>()
     private val entities = mutableListOf<Entity>()
 
     private val modified = mutableListOf<Entity>()
 
     private var isUpdating = false
 
-    fun registerSystem(system: AbstractSystem): Engine {
+    fun registerSystem(system: EcsSystem): Engine {
         return registerSystem(0, system)
     }
 
-    fun registerSystem(priority: Int, system: AbstractSystem): Engine {
+    fun registerSystem(priority: Int, system: EcsSystem): Engine {
 
         // Fetch queries
         for (query in system.queries) {
