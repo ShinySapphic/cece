@@ -1,5 +1,6 @@
 package me.lucidus.cece
 
+import java.lang.IllegalStateException
 import java.util.logging.Level
 import java.util.logging.Logger
 
@@ -11,9 +12,12 @@ class Engine {
     // list of archetypes that contain this component id
     private val componentIndex = HashMap<Int, Archetypes>()
 
-    private val systems = mutableListOf<(Pair<Int, AbstractSystem>)>()
+    private val queries = HashSet<Query>()
 
+    private val systems = mutableListOf<(Pair<Int, AbstractSystem>)>()
     private val entities = mutableListOf<Entity>()
+
+    private var isUpdating = false
 
     fun registerSystem(system: AbstractSystem): Engine {
         return registerSystem(0, system)
@@ -21,10 +25,17 @@ class Engine {
 
     fun registerSystem(priority: Int, system: AbstractSystem): Engine {
 
-        // Populate query
+        // Fetch queries
         for (query in system.queries) {
-            for (entity in entities)
-                query.validate(entity)
+            if (queries.contains(query))
+                continue
+            queries.add(query)
+
+            // Populate query
+            for (ent in entities) {
+                if (query.contains(ent))
+                    query.entities.add(ent)
+            }
         }
 
         val pair = Pair(priority, system)
@@ -34,9 +45,13 @@ class Engine {
     }
 
     fun update(deltaTime: Float = 0f) {
+        if (isUpdating)
+            throw IllegalStateException("Cannot call update more than once at a time.")
+        isUpdating = true
         for ((_, system) in systems) {
             system.update(deltaTime)
         }
+        isUpdating = false
     }
 
     /**
@@ -60,10 +75,11 @@ class Engine {
             return
         }
 
-        entityIndex[entity.id] = Archetype.EMPTY
-        entities.add(entity)
+        if (entityIndex[entity.id] == null)
+            entityIndex[entity.id] = Archetype.EMPTY
 
-        validateQueries(entity)
+        entities.add(entity)
+        validateQuery(entity)
 
         logger.info("Entity #${entity.id} successfully added")
     }
@@ -79,11 +95,11 @@ class Engine {
             return
         }
 
-        val archetype = entityIndex[entity.id] ?: return
+        val archetype = entityIndex[entity.id]!!
         for (compId in archetype.type)
             removeComponent(entity.id, compId)
 
-        validateQueries(entity)
+        validateQuery(entity)
 
         entities.remove(entity)
 
@@ -93,13 +109,13 @@ class Engine {
     fun addComponent(entity: Entity, component: Component) {
         addComponent(entity.id, component)
 
-        validateQueries(entity)
+        validateQuery(entity)
     }
 
     fun removeComponent(entity: Entity, componentClass: ComponentClass) {
         removeComponent(entity.id, ComponentType.getFor(componentClass ?: return).id)
 
-        validateQueries(entity)
+        validateQuery(entity)
     }
 
     fun <T : Component?> getComponent(entity: Entity, componentClass: ComponentClass): T? {
@@ -110,10 +126,12 @@ class Engine {
         return hasComponent(entity.id, ComponentType.getFor(componentClass ?: return false).id)
     }
 
-    private fun validateQueries(entity: Entity) {
-        for ((_, system) in systems) {
-            for (query in system.queries)
-                query.validate(entity)
+    private fun validateQuery(entity: Entity) {
+        for (query in queries) {
+            if (query.contains(entity) && !query.entities.contains(entity))
+                entities.add(entity)
+            else
+                entities.remove(entity)
         }
     }
 
@@ -122,10 +140,9 @@ class Engine {
         // Update entity archetype
         entityIndex[ent] = newArchetype
 
-        logger.fine("New archetype id is $newArchetype.id")
+        logger.finer("New archetype id is $newArchetype.id")
 
         // Update component index
-        //TODO: Try to update index in O(1) if possible
         for (comp in newArchetype.type) {
             if (componentIndex.containsKey(comp)) {
                 val archetypes = componentIndex[comp]
@@ -145,8 +162,8 @@ class Engine {
         // Find or create new archetype
         val newArchetype: Archetype
         if (!archetype.edges.containsKey(componentId)) {
-            val components: List<Int> = archetype.type - componentId
-            newArchetype = Archetype(components, archetype.components)
+            val type: Set<Int> = archetype.type - componentId
+            newArchetype = Archetype(type, archetype.components)
 
             val edge = ArchetypeEdge(archetype, newArchetype)
             archetype.edges[componentId] = edge
@@ -171,8 +188,9 @@ class Engine {
         // Find or create new archetype
         val newArchetype: Archetype
         if (!archetype.edges.containsKey(componentId)) {
-            val components: List<Int> = archetype.type + componentId
-            newArchetype = Archetype(components, archetype.components)
+            val type: Set<Int> = archetype.type + componentId
+
+            newArchetype = Archetype(type, archetype.components)
 
             val edge = ArchetypeEdge(newArchetype, archetype)
             archetype.edges[componentId] = edge

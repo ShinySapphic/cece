@@ -2,7 +2,7 @@ package me.lucidus.cece
 
 class Archetype(
     // Holds component ids
-    val type: List<Int> = ArrayList(),
+    val type: Set<Int> = HashSet(),
     val components: MutableMap<Int, ComponentMap> = HashMap()
 ) {
 

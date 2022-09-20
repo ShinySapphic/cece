@@ -1,8 +1,7 @@
 package me.lucidus.cece
 
 abstract class AbstractSystem constructor(vararg query: Query) {
-
-    val queries: Array<Query> = arrayOf(*query)
+    val queries = query
 
     open fun update(deltaTime: Float) {
 

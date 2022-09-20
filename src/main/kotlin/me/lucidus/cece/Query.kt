@@ -1,30 +1,21 @@
 package me.lucidus.cece
 
-class Query private constructor(private val include: MutableList<ComponentClass>, private val exclude: MutableList<ComponentClass>) : Iterable<Entity> {
-    private val entities = mutableListOf<Entity>()
+class Query private constructor(private val specifier: QuerySpecifier) : Iterable<Entity> {
+
+    @JvmSynthetic
+    internal val entities = mutableListOf<Entity>()
 
     fun contains(entity: Entity): Boolean {
-        for (comp in exclude) {
+        for (comp in specifier.exclude) {
             if (entity.hasComponent(comp))
                 return false
         }
 
-        for (comp in include) {
+        for (comp in specifier.include) {
             if (!entity.hasComponent(comp))
                 return false
         }
         return true
-    }
-
-    /**
-     * Checks that this entity meets the query's requirements and adds to the list if so.
-     * If this entity has been modified and no longer meets requirements, it will be removed.
-     */
-    fun validate(entity: Entity) {
-        if (contains(entity))
-            entities.add(entity)
-        else
-            entities.remove(entity)
     }
 
     override fun iterator(): Iterator<Entity> {
@@ -42,12 +33,14 @@ class Query private constructor(private val include: MutableList<ComponentClass>
         @JvmStatic
         @SafeVarargs
         fun without(vararg components: ComponentClass): Builder {
-            return Builder().with(*components)
+            return Builder().without(*components)
         }
 
         class Builder {
-            private val include = mutableListOf<ComponentClass>()
-            private val exclude = mutableListOf<ComponentClass>()
+            private val queries = HashMap<QuerySpecifier, Query>()
+
+            private val include = mutableSetOf<ComponentClass>()
+            private val exclude = mutableSetOf<ComponentClass>()
 
             fun with(vararg components: ComponentClass): Builder {
                 for (comp in components)
@@ -62,8 +55,36 @@ class Query private constructor(private val include: MutableList<ComponentClass>
             }
 
             fun get(): Query {
-                return Query(include, exclude)
+                val specifier = QuerySpecifier(include, exclude)
+
+                if (queries.containsKey(specifier))
+                    return queries[specifier]!!
+                val query = Query(specifier)
+                queries[specifier] = query
+
+                return query
             }
         }
+    }
+}
+
+class QuerySpecifier constructor(val include: Set<ComponentClass>, val exclude: Set<ComponentClass>) {
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as QuerySpecifier
+
+        if (include != other.include) return false
+        if (exclude != other.exclude) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = include.hashCode()
+        result = 31 * result + exclude.hashCode()
+        return result
     }
 }
