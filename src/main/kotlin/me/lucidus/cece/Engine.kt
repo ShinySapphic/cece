@@ -61,11 +61,11 @@ class Engine {
             val ent = iter.next()
 
             for (query in queries) {
-                if (query.contains(ent))
+                if (query.contains(ent)) {
                     if (!query.entities.contains(ent))
                         query.entities.add(ent)
-                    else
-                        query.entities.remove(ent)
+                } else
+                    query.entities.remove(ent)
             }
             iter.remove()
         }
@@ -235,7 +235,7 @@ class Engine {
     }
 
     init {
-        logger.level = Level.WARNING
+        logger.level = Level.INFO
 
 //        val handler = ConsoleHandler()
 //

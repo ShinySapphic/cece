@@ -16,16 +16,16 @@ internal class SystemTest {
             entA!!.addComponent(HelloComponent("Hello World!"))
 
             val entB = engine.entity(engine.createEntity())
-            entB!!.addComponent(FavoriteNumComponent(5)).addComponent(MultiplierComponent(2))
+            entB!!.addComponent(FavoriteNumComponent(5 * i)).addComponent(MultiplierComponent(2))
 
             val entC = engine.entity(engine.createEntity())
-            entC!!.addComponent(FavoriteNumComponent(25))
+            entC!!.addComponent(FavoriteNumComponent(25 * i))
 
             if (i > 2) {
                 entA.removeComponent(HelloComponent::class.java)
                 entC.addComponent(MultiplierComponent(0))
 
-                engine.entity(engine.createEntity())!!.addComponent(CoolComponent()).addComponent(FavoriteNumComponent(32))
+                engine.entity(engine.createEntity())!!.addComponent(CoolComponent()).addComponent(FavoriteNumComponent(32 * i))
                 engine.entity(engine.createEntity())!!.addComponent(LameComponent())
             }
         }
@@ -71,7 +71,11 @@ internal class SystemTest {
             println("PrintNumSystem: 4 (I should be last)")
             for (ent in queries[0]) {
                 val myNum = ent.getComponent<FavoriteNumComponent>(FavoriteNumComponent::class.java)
-                println("ent: ${ent.id} My favorite number is: ${myNum!!.value}")
+                if (myNum!!.value > 150) {
+                    println("ent: ${ent.id} is being despawned :o")
+                    ent.despawn()
+                }
+                println("ent: ${ent.id} My favorite number is: ${myNum.value}")
             }
         }
     }
@@ -83,6 +87,13 @@ internal class SystemTest {
                 val myNum = ent.getComponent<FavoriteNumComponent>(FavoriteNumComponent::class.java)
                 val multiplier = ent.getComponent<MultiplierComponent>(MultiplierComponent::class.java)
                 myNum!!.value *= multiplier!!.value
+
+                println("Multiplied entity: ${ent.id}'s favorite number. It is now ${myNum!!.value}")
+
+                if (myNum.value >= 100) {
+                    println("Removing MultiplierComponent")
+                    ent.removeComponent(MultiplierComponent::class.java)
+                }
             }
         }
     }

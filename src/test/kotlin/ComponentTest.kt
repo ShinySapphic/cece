@@ -1,6 +1,9 @@
+import me.lucidus.cece.EcsSystem
 import me.lucidus.cece.Engine
 import me.lucidus.cece.Entity
+import me.lucidus.cece.Query
 import org.junit.Test
+import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
@@ -31,6 +34,41 @@ internal class ComponentTest {
 
         assertNotNull(retrieved)
         println(retrieved.message)
+    }
+
+    @Test
+    fun testRemoveComponent() {
+        val systemA = object : EcsSystem(Query.with(HelloComponent::class.java).get()) {
+            override fun update(deltaTime: Float) {
+                for (ent in queries[0]) {
+                    val msg = ent.getComponent<HelloComponent>(HelloComponent::class.java)!!.message
+                    println("ent: ${ent.id} says '${msg}'")
+                }
+            }
+        }
+        val systemB = object : EcsSystem(Query.with(HelloComponent::class.java, CoolComponent::class.java).get()) {
+            override fun update(deltaTime: Float) {
+                for (ent in queries[0]) {
+                    val msg = ent.getComponent<HelloComponent>(HelloComponent::class.java)!!.message
+                    println("ent: ${ent.id} says '${msg}' I'm sooo cool!!!")
+                }
+            }
+        }
+        engine.registerSystem(systemA).registerSystem(systemB)
+
+        val entity = engine.entity(engine.createEntity())
+        entity!!.addComponent(HelloComponent("Hiya!")).addComponent(CoolComponent())
+
+        // Run systems before and after removal to make sure queries update
+        engine.update(0f)
+        engine.update(0f)
+
+        entity.removeComponent(CoolComponent::class.java)
+
+        engine.update(0f)
+        engine.update(0f)
+
+        assertFalse(entity.hasComponent(CoolComponent::class.java))
     }
 
     @Test
