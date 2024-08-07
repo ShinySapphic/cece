@@ -15,11 +15,15 @@ class Engine {
     private val queries = HashSet<Query>()
 
     private val systems = mutableListOf<(Pair<Int, EcsSystem>)>()
-    private val entities = mutableListOf<Entity>()
+    private val entities = mutableListOf<EntityRef>()
 
-    private val modified = mutableListOf<Entity>()
+    private val modified = mutableListOf<EntityRef>()
 
     private var isUpdating = false
+
+    companion object {
+        private var entityCounter = 0u
+    }
 
     fun registerSystem(system: EcsSystem): Engine {
         return registerSystem(0, system)
@@ -60,10 +64,11 @@ class Engine {
             val ent = iter.next()
 
             for (query in queries) {
-                if (query.contains(ent) && !query.entities.contains(ent))
-                    query.entities.add(ent)
-                else
-                    query.entities.remove(ent)
+                if (query.contains(ent))
+                    if (!query.entities.contains(ent))
+                        query.entities.add(ent)
+                    else
+                        query.entities.remove(ent)
             }
             iter.remove()
         }
@@ -75,7 +80,7 @@ class Engine {
      * Creates a new entity and adds them to the engine automatically
      */
     fun createEntity(): Entity {
-        val ent = Entity(this)
+        val ent = Entity(entityCounter++)
         addEntity(ent)
 
         return ent
@@ -87,62 +92,34 @@ class Engine {
      *          An object which inherits [Entity]
      */
     fun addEntity(entity: Entity) {
-        if (entities.contains(entity)) {
+        val ref = EntityRef(this, entity.id)
+        if (entities.contains(ref)) {
             logger.warning("Entity #${entity.id} has already been added")
             return
         }
 
-        entityIndex[entity.id] = Archetype.EMPTY
-        validateQuery(entity)
+        entityIndex[ref.id] = Archetype.EMPTY
+        validateQuery(ref)
 
-        entities.add(entity)
+        entities.add(ref)
 
         logger.info("Entity #${entity.id} successfully added")
     }
 
     /**
-     * Removes an entity from this engine.
+     * Retrieves a reference to this entity if added to the engine.
+     * Allows you to modify components and remove entity from engine.
      * @param entity
      *          An object which inherits [Entity]
      */
-    fun removeEntity(entity: Entity) {
-        if (!entities.contains(entity)) {
-            logger.warning("Attempting to remove an entity that isn't registered.")
-            return
-        }
+    fun entity(entity: Entity): EntityRef? {
 
-        val archetype = entityIndex[entity.id]!!
-        for (compId in archetype.type)
-            removeComponent(entity.id, compId)
-
-        validateQuery(entity)
-
-        entities.remove(entity)
-
-        logger.info("Entity #${entity.id} successfully removed")
+        // This doesn't need to be fast. Systems will fetch entities from populated queries.
+        // if this method must be used a lot, it should be cached first
+        return entities.find { ref -> entity.id == ref.id }
     }
 
-    fun addComponent(entity: Entity, component: Component) {
-        addComponent(entity.id, component)
-
-        validateQuery(entity)
-    }
-
-    fun removeComponent(entity: Entity, componentClass: ComponentClass) {
-        removeComponent(entity.id, ComponentType.getFor(componentClass ?: return).id)
-
-        validateQuery(entity)
-    }
-
-    fun <T : Component?> getComponent(entity: Entity, componentClass: ComponentClass): T? {
-        return getComponent(entity.id, ComponentType.getFor(componentClass ?: return null).id)
-    }
-
-    fun hasComponent(entity: Entity, componentClass: ComponentClass): Boolean {
-        return hasComponent(entity.id, ComponentType.getFor(componentClass ?: return false).id)
-    }
-
-    private fun validateQuery(entity: Entity) {
+    private fun validateQuery(entity: EntityRef) {
         if (!modified.contains(entity))
             modified.add(entity)
     }
@@ -166,10 +143,29 @@ class Engine {
         }
     }
 
-    private fun removeComponent(ent: UInt, componentId: UInt) {
-        val archetype = entityIndex[ent] ?: return
+    @JvmSynthetic
+    internal fun removeEntity(entity: EntityRef) {
+        if (!entities.contains(entity)) {
+            logger.warning("Attempting to remove an entity that isn't registered.")
+            return
+        }
 
-        logger.fine("Removing component: $componentId from entity: $ent")
+        val archetype = entityIndex[entity.id]!!
+        for (compId in archetype.type)
+            removeComponent(entity, compId)
+
+        validateQuery(entity)
+
+        entities.remove(entity)
+
+        logger.info("Entity #${entity.id} successfully removed")
+    }
+
+    @JvmSynthetic
+    internal fun removeComponent(entity: EntityRef, componentId: UInt) {
+        val archetype = entityIndex[entity.id] ?: return
+
+        logger.fine("Removing component: $componentId from entity: ${entity.id}")
 
         // Find or create new archetype
         val newArchetype: Archetype
@@ -184,18 +180,20 @@ class Engine {
         }
 
         // Remove component object from entity list
-        if (archetype.components.containsKey(ent))
-            archetype.components[ent]!!.remove(componentId)
-        updateIndexes(ent, newArchetype)
+        if (archetype.components.containsKey(entity.id))
+            archetype.components[entity.id]!!.remove(componentId)
+        updateIndexes(entity.id, newArchetype)
+        validateQuery(entity)
 
-        logger.fine("Successfully removed component: $componentId from entity: $ent")
+        logger.fine("Successfully removed component: $componentId from entity: ${entity.id}")
     }
 
-    private fun addComponent(ent: UInt, component: Component) {
-        val archetype = entityIndex[ent] ?: return
+    @JvmSynthetic
+    internal fun addComponent(entity: EntityRef, component: Component) {
+        val archetype = entityIndex[entity.id] ?: return
         val componentId = ComponentType.getFor(component.javaClass).id
 
-        logger.fine("Adding component: $componentId to entity: $ent")
+        logger.fine("Adding component: $componentId to entity: ${entity.id}")
 
         // Find or create new archetype
         val newArchetype: Archetype
@@ -211,26 +209,29 @@ class Engine {
         }
 
         // Add component object to entity list
-        if (newArchetype.components.containsKey(ent))
-            newArchetype.components[ent]!![componentId] = component
+        if (newArchetype.components.containsKey(entity.id))
+            newArchetype.components[entity.id]!![componentId] = component
         else
-            newArchetype.components[ent] = mutableMapOf(Pair(componentId, component))
-        updateIndexes(ent, newArchetype)
+            newArchetype.components[entity.id] = mutableMapOf(Pair(componentId, component))
+        updateIndexes(entity.id, newArchetype)
+        validateQuery(entity)
 
-        logger.fine("Successfully added component: $componentId to entity: $ent")
+        logger.fine("Successfully added component: $componentId to entity: ${entity.id}")
     }
 
+    @JvmSynthetic
     @Suppress("unchecked_cast")
-    private fun <T : Component?> getComponent(ent: UInt, componentId: UInt): T? {
-        if (!hasComponent(ent, componentId))
+    internal fun <T : Component?> getComponent(entity: EntityRef, componentId: UInt): T? {
+        if (!hasComponent(entity, componentId))
             return null
 
-        val archetype = entityIndex[ent]
-        return archetype!!.components[ent]!![componentId] as T
+        val archetype = entityIndex[entity.id]
+        return archetype!!.components[entity.id]!![componentId] as T
     }
 
-    private fun hasComponent(ent: UInt, componentId: UInt): Boolean {
-        val archetype = entityIndex[ent]
+    @JvmSynthetic
+    internal fun hasComponent(entity: EntityRef, componentId: UInt): Boolean {
+        val archetype = entityIndex[entity.id]
         val archetypes = componentIndex[componentId]
 
         return archetypes?.contains(archetype?.id) ?: false
@@ -247,4 +248,4 @@ class Engine {
 }
 
 typealias Archetypes = MutableSet<UInt>
-typealias ComponentClass = Class<out Component>?
+typealias ComponentClass = Class<out Component?>

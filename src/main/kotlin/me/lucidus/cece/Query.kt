@@ -1,11 +1,11 @@
 package me.lucidus.cece
 
-class Query private constructor(private val specifier: QuerySpecifier) : Iterable<Entity> {
+class Query private constructor(private val specifier: QuerySpecifier) : Iterable<EntityRef> {
 
     @JvmSynthetic
-    internal val entities = mutableListOf<Entity>()
+    internal val entities = mutableListOf<EntityRef>()
 
-    fun contains(entity: Entity): Boolean {
+    fun contains(entity: EntityRef): Boolean {
         for (comp in specifier.exclude) {
             if (entity.hasComponent(comp))
                 return false
@@ -18,7 +18,7 @@ class Query private constructor(private val specifier: QuerySpecifier) : Iterabl
         return true
     }
 
-    override fun iterator(): Iterator<Entity> {
+    override fun iterator(): Iterator<EntityRef> {
         return entities.iterator()
     }
 
@@ -68,7 +68,7 @@ class Query private constructor(private val specifier: QuerySpecifier) : Iterabl
     }
 }
 
-class QuerySpecifier constructor(val include: Set<ComponentClass>, val exclude: Set<ComponentClass>) {
+class QuerySpecifier(val include: Set<ComponentClass>, val exclude: Set<ComponentClass>) {
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

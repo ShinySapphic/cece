@@ -1,4 +1,5 @@
 import me.lucidus.cece.Engine
+import me.lucidus.cece.Entity
 import org.junit.Test
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
@@ -9,19 +10,22 @@ internal class ComponentTest {
 
     @Test
     fun testAddComponent() {
-        val entity = engine.createEntity()
+        val e = Entity(0u)
+        engine.addEntity(e)
+
+        val entity = engine.entity(e)
         val component = HelloComponent("Howdy!")
 
-        entity.addComponent(component)
+        entity!!.addComponent(component)
         assertTrue(entity.hasComponent(component.javaClass))
     }
 
     @Test
     fun testGetComponent() {
-        val entity = engine.createEntity()
+        val entity = engine.entity(engine.createEntity())
         val component = HelloComponent("Hello World!")
 
-        entity.addComponent(component)
+        entity!!.addComponent(component)
 
         val retrieved = entity.getComponent<HelloComponent>(component.javaClass)
 
@@ -31,11 +35,11 @@ internal class ComponentTest {
 
     @Test
     fun testGetMultiple() {
-        val entA = engine.createEntity()
-        val entB = engine.createEntity()
+        val entA = engine.entity(engine.createEntity())
+        val entB = engine.entity(engine.createEntity())
 
-        entA.addComponent(HelloComponent("Look, I'm Woody! Howdy howdy howdy."))
-        entB.addComponent(HelloComponent("Gimme that"))
+        entA!!.addComponent(HelloComponent("Look, I'm Woody! Howdy howdy howdy."))
+        entB!!.addComponent(HelloComponent("Gimme that"))
 
         val helloA = entA.getComponent<HelloComponent>(HelloComponent::class.java)
         val helloB = entB.getComponent<HelloComponent>(HelloComponent::class.java)
