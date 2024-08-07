@@ -20,10 +20,7 @@ class Engine {
     private val modified = mutableListOf<EntityRef>()
 
     private var isUpdating = false
-
-    companion object {
-        private var entityCounter = 0u
-    }
+    private var entityCounter = 0u
 
     fun registerSystem(system: EcsSystem): Engine {
         return registerSystem(0, system)
