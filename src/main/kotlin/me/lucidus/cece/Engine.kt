@@ -52,9 +52,6 @@ class Engine {
             throw IllegalStateException("Cannot call update more than once at a time.")
         isUpdating = true
 
-        for ((_, system) in systems)
-            system.update(deltaTime)
-
         // Update queries for modified entities
         val iter = modified.iterator()
         while (iter.hasNext()) {
@@ -69,6 +66,9 @@ class Engine {
             }
             iter.remove()
         }
+
+        for ((_, system) in systems)
+            system.update(deltaTime)
 
         isUpdating = false
     }

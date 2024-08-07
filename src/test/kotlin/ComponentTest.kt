@@ -61,11 +61,9 @@ internal class ComponentTest {
 
         // Run systems before and after removal to make sure queries update
         engine.update(0f)
-        engine.update(0f)
 
         entity.removeComponent(CoolComponent::class.java)
 
-        engine.update(0f)
         engine.update(0f)
 
         assertFalse(entity.hasComponent(CoolComponent::class.java))
