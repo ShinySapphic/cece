@@ -40,7 +40,7 @@ internal class ComponentTest {
     fun testRemoveComponent() {
         val systemA = object : EcsSystem(Query.with(HelloComponent::class.java).get()) {
             override fun update(deltaTime: Float) {
-                for (ent in queries[0]) {
+                for (ent in query(0)) {
                     val msg = ent.getComponent<HelloComponent>(HelloComponent::class.java)!!.message
                     println("ent: ${ent.id} says '${msg}'")
                 }
@@ -48,7 +48,7 @@ internal class ComponentTest {
         }
         val systemB = object : EcsSystem(Query.with(HelloComponent::class.java, CoolComponent::class.java).get()) {
             override fun update(deltaTime: Float) {
-                for (ent in queries[0]) {
+                for (ent in query(0)) {
                     val msg = ent.getComponent<HelloComponent>(HelloComponent::class.java)!!.message
                     println("ent: ${ent.id} says '${msg}' I'm sooo cool!!!")
                 }

@@ -58,7 +58,7 @@ internal class SystemTest {
             println("HelloSystem: 1")
             if (isFinished)
                 return
-            for (ent in queries[0]) {
+            for (ent in query(0)) {
                 val hello = ent.getComponent<HelloComponent>(HelloComponent::class.java)
                 println("ent: ${ent.id} ${hello!!.message}")
             }
@@ -69,7 +69,7 @@ internal class SystemTest {
     class PrintNumSystem : EcsSystem(Query.with(FavoriteNumComponent::class.java).get()) {
         override fun update(deltaTime: Float) {
             println("PrintNumSystem: 4 (I should be last)")
-            for (ent in queries[0]) {
+            for (ent in query(0)) {
                 val myNum = ent.getComponent<FavoriteNumComponent>(FavoriteNumComponent::class.java)
                 if (myNum!!.value > 150) {
                     println("ent: ${ent.id} is being despawned :o")
@@ -83,7 +83,7 @@ internal class SystemTest {
     class MultiplySystem : EcsSystem(Query.with(FavoriteNumComponent::class.java, MultiplierComponent::class.java).get()) {
         override fun update(deltaTime: Float) {
             println("MultiplySystem: 2 ( I should be first now)")
-            for (ent in queries[0]) {
+            for (ent in query(0)) {
                 val myNum = ent.getComponent<FavoriteNumComponent>(FavoriteNumComponent::class.java)
                 val multiplier = ent.getComponent<MultiplierComponent>(MultiplierComponent::class.java)
                 myNum!!.value *= multiplier!!.value
@@ -101,7 +101,7 @@ internal class SystemTest {
     class AddByFiveSystem : EcsSystem(Query.with(FavoriteNumComponent::class.java).without(MultiplierComponent::class.java).get()) {
         override fun update(deltaTime: Float) {
             println("AddByFiveSystem: 3")
-            for (ent in queries[0]) {
+            for (ent in query(0)) {
                 val myNum = ent.getComponent<FavoriteNumComponent>(FavoriteNumComponent::class.java)
                 myNum!!.value += 5
             }
@@ -110,11 +110,11 @@ internal class SystemTest {
 
     class MultiQuery : EcsSystem(Query.with(CoolComponent::class.java, FavoriteNumComponent::class.java).get(), Query.with(LameComponent::class.java).get()) {
         override fun update(deltaTime: Float) {
-            for (entA in queries[0]) {
+            for (entA in query(0)) {
                 val myNum = entA.getComponent<FavoriteNumComponent>(FavoriteNumComponent::class.java)
                 println("ent: ${entA.id} I'm cool and have a favorite number: ${myNum!!.value}")
 
-                for (entB in queries[1]) {
+                for (entB in query(0)) {
                     println("ent: ${entB.id} I'm not as cool as ${entA.id}")
                 }
             }
