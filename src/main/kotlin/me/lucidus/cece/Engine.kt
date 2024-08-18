@@ -76,11 +76,9 @@ class Engine {
     /**
      * Creates a new entity and adds them to the engine automatically
      */
-    fun createEntity(): Entity {
+    fun createEntity(): EntityRef {
         val ent = Entity(entityCounter++)
-        addEntity(ent)
-
-        return ent
+        return addEntity(ent)
     }
 
     /**
@@ -88,11 +86,11 @@ class Engine {
      * @param entity
      *          An object which inherits [Entity]
      */
-    fun addEntity(entity: Entity) {
+    fun addEntity(entity: Entity) : EntityRef {
         val ref = EntityRef(this, entity.id)
         if (entities.contains(ref)) {
             logger.warning("Entity #${entity.id} has already been added")
-            return
+            return ref
         }
 
         entityIndex[ref.id] = Archetype.EMPTY
@@ -101,6 +99,7 @@ class Engine {
         entities.add(ref)
 
         logger.info("Entity #${entity.id} successfully added")
+        return ref
     }
 
     /**

@@ -12,21 +12,21 @@ internal class SystemTest {
         registerSystems(engine)
 
         for (i in 0..5) {
-            val entA = engine.entity(engine.createEntity())
-            entA!!.addComponent(HelloComponent("Hello World!"))
+            val entA = engine.createEntity()
+            entA.addComponent(HelloComponent("Hello World!"))
 
-            val entB = engine.entity(engine.createEntity())
-            entB!!.addComponent(FavoriteNumComponent(5 * i)).addComponent(MultiplierComponent(2))
+            val entB = engine.createEntity()
+            entB.addComponent(FavoriteNumComponent(5 * i)).addComponent(MultiplierComponent(2))
 
-            val entC = engine.entity(engine.createEntity())
-            entC!!.addComponent(FavoriteNumComponent(25 * i))
+            val entC = engine.createEntity()
+            entC.addComponent(FavoriteNumComponent(25 * i))
 
             if (i > 2) {
                 entA.removeComponent(HelloComponent::class.java)
                 entC.addComponent(MultiplierComponent(0))
 
-                engine.entity(engine.createEntity())!!.addComponent(CoolComponent()).addComponent(FavoriteNumComponent(32 * i))
-                engine.entity(engine.createEntity())!!.addComponent(LameComponent())
+                engine.createEntity().addComponent(CoolComponent()).addComponent(FavoriteNumComponent(32 * i))
+                engine.createEntity().addComponent(LameComponent())
             }
         }
 

@@ -25,7 +25,7 @@ internal class ComponentTest {
 
     @Test
     fun testGetComponent() {
-        val entity = engine.entity(engine.createEntity())
+        val entity = engine.createEntity()
         val component = HelloComponent("Hello World!")
 
         entity!!.addComponent(component)
@@ -56,7 +56,7 @@ internal class ComponentTest {
         }
         engine.registerSystem(systemA).registerSystem(systemB)
 
-        val entity = engine.entity(engine.createEntity())
+        val entity = engine.createEntity()
         entity!!.addComponent(HelloComponent("Hiya!")).addComponent(CoolComponent())
 
         // Run systems before and after removal to make sure queries update
@@ -71,8 +71,8 @@ internal class ComponentTest {
 
     @Test
     fun testGetMultiple() {
-        val entA = engine.entity(engine.createEntity())
-        val entB = engine.entity(engine.createEntity())
+        val entA = engine.createEntity()
+        val entB = engine.createEntity()
 
         entA!!.addComponent(HelloComponent("Look, I'm Woody! Howdy howdy howdy."))
         entB!!.addComponent(HelloComponent("Gimme that"))

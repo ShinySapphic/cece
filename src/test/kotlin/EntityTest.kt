@@ -18,7 +18,7 @@ internal class EntityTest {
         // Isn't this so much nicer than `engine.addEntity(Entity(engine, 1u))` :3
         engine.addEntity(Entity(1u))
 
-        assertEquals(entA, entB)
+        assertEquals(entA, engine.entity(entB))
 
         // We don't even need to hold a reference to the entity, it's just an id
         assertNotNull(engine.entity(Entity(1u)))
@@ -26,11 +26,12 @@ internal class EntityTest {
 
     @Test
     fun testRemoveEntity() {
-        val ent = engine.createEntity()
+        val ent = Entity(2u)
+        engine.addEntity(ent)
 
         engine.entity(ent)!!.remove()
 
-        // The entity cannot be removed until the next tick due to iterating queries
+        // entity.remove should work instantly
         assertNull(engine.entity(ent))
 
         engine.update(0f)
