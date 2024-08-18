@@ -2,7 +2,7 @@ package me.lucidus.cece
 
 class Query private constructor(private val specifier: QuerySpecifier) : Iterable<EntityRef> {
 
-    @JvmSynthetic
+    @get:JvmSynthetic
     internal val entities = mutableListOf<EntityRef>()
 
     fun contains(entity: EntityRef): Boolean {
