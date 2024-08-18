@@ -23,7 +23,7 @@ class EntityRef(private val engine: Engine, val id: UInt) {
     /**
      * Removes this entity from the engine.
      */
-    fun despawn() {
+    fun remove() {
         engine.removeEntity(this)
     }
     

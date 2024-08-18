@@ -73,7 +73,7 @@ internal class SystemTest {
                 val myNum = ent.getComponent(FavoriteNumComponent::class.java)
                 if (myNum!!.value > 150) {
                     println("ent: ${ent.id} is being despawned :o")
-                    ent.despawn()
+                    ent.remove()
                 }
                 println("ent: ${ent.id} My favorite number is: ${myNum.value}")
             }

@@ -28,7 +28,7 @@ internal class EntityTest {
     fun testRemoveEntity() {
         val ent = engine.createEntity()
 
-        engine.entity(ent)!!.despawn()
+        engine.entity(ent)!!.remove()
 
         // The entity cannot be removed until the next tick due to iterating queries
         assertNull(engine.entity(ent))
