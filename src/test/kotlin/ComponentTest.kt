@@ -30,7 +30,7 @@ internal class ComponentTest {
 
         entity!!.addComponent(component)
 
-        val retrieved = entity.getComponent<HelloComponent>(component.javaClass)
+        val retrieved = entity.getComponent(component.javaClass)
 
         assertNotNull(retrieved)
         println(retrieved.message)
@@ -41,7 +41,7 @@ internal class ComponentTest {
         val systemA = object : EcsSystem(Query.with(HelloComponent::class.java).get()) {
             override fun update(deltaTime: Float) {
                 for (ent in query(0)) {
-                    val msg = ent.getComponent<HelloComponent>(HelloComponent::class.java)!!.message
+                    val msg = ent.getComponent(HelloComponent::class.java)!!.message
                     println("ent: ${ent.id} says '${msg}'")
                 }
             }
@@ -49,7 +49,7 @@ internal class ComponentTest {
         val systemB = object : EcsSystem(Query.with(HelloComponent::class.java, CoolComponent::class.java).get()) {
             override fun update(deltaTime: Float) {
                 for (ent in query(0)) {
-                    val msg = ent.getComponent<HelloComponent>(HelloComponent::class.java)!!.message
+                    val msg = ent.getComponent(HelloComponent::class.java)!!.message
                     println("ent: ${ent.id} says '${msg}' I'm sooo cool!!!")
                 }
             }
@@ -77,8 +77,8 @@ internal class ComponentTest {
         entA!!.addComponent(HelloComponent("Look, I'm Woody! Howdy howdy howdy."))
         entB!!.addComponent(HelloComponent("Gimme that"))
 
-        val helloA = entA.getComponent<HelloComponent>(HelloComponent::class.java)
-        val helloB = entB.getComponent<HelloComponent>(HelloComponent::class.java)
+        val helloA = entA.getComponent(HelloComponent::class.java)
+        val helloB = entB.getComponent(HelloComponent::class.java)
 
         assertNotNull(helloA)
         println(helloA.message)
@@ -89,8 +89,8 @@ internal class ComponentTest {
         entA.addComponent(FavoriteNumComponent(23))
         entB.addComponent(FavoriteNumComponent(256))
 
-        val numA = entA.getComponent<FavoriteNumComponent>(FavoriteNumComponent::class.java)
-        val numB = entB.getComponent<FavoriteNumComponent>(FavoriteNumComponent::class.java)
+        val numA = entA.getComponent(FavoriteNumComponent::class.java)
+        val numB = entB.getComponent(FavoriteNumComponent::class.java)
 
         assertNotNull(numA)
         println("My favorite number is ${numA.value}!")

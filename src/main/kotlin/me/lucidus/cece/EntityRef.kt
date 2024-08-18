@@ -16,7 +16,7 @@ class EntityRef(private val engine: Engine, val id: UInt) {
         return engine.hasComponent(this, ComponentType.getFor(componentClass).id)
     }
 
-    fun <T : Component?> getComponent(componentClass: ComponentClass): T? {
+    fun <T : Component> getComponent(componentClass: Class<T>): T? {
         return engine.getComponent(this, ComponentType.getFor(componentClass).id)
     }
 
