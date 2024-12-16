@@ -4,6 +4,7 @@ import me.lucidus.cece.Entity
 import me.lucidus.cece.Query
 import org.junit.Test
 import kotlin.test.assertFalse
+import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
@@ -28,7 +29,7 @@ internal class ComponentTest {
         val entity = engine.createEntity()
         val component = HelloComponent("Hello World!")
 
-        entity!!.addComponent(component)
+        entity.addComponent(component)
 
         val retrieved = entity.getComponent(component.javaClass)
 
@@ -74,8 +75,8 @@ internal class ComponentTest {
         val entA = engine.createEntity()
         val entB = engine.createEntity()
 
-        entA!!.addComponent(HelloComponent("Look, I'm Woody! Howdy howdy howdy."))
-        entB!!.addComponent(HelloComponent("Gimme that"))
+        entA.addComponent(HelloComponent("Look, I'm Woody! Howdy howdy howdy."))
+        entB.addComponent(HelloComponent("Gimme that"))
 
         val helloA = entA.getComponent(HelloComponent::class.java)
         val helloB = entB.getComponent(HelloComponent::class.java)
@@ -98,5 +99,13 @@ internal class ComponentTest {
         assertNotNull(numB)
         println("Well mine is ${numB.value}!")
 
+        for (comp in entA.getComponents()) {
+            println("Found component: $comp for Entity: ${entA.id}")
+        }
+        assert(entA.getComponents().size == 2)
+
+        entA.getComponents().removeAt(0)
+
+        assert(entA.hasComponent(HelloComponent::class.java))
     }
 }

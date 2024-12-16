@@ -21,6 +21,14 @@ class EntityRef(private val engine: Engine, val id: UInt) {
     }
 
     /**
+     * Fetches a list of every [Component] object this entity has.
+     */
+    fun getComponents(): ArrayList<Component> {
+        engine.getComponents(this).removeAt(0)
+        return engine.getComponents(this);
+    }
+
+    /**
      * Removes this entity from the engine.
      */
     fun remove() {

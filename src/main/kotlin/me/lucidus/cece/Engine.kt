@@ -233,6 +233,12 @@ class Engine {
         return archetypes?.contains(archetype?.id) ?: false
     }
 
+    @JvmSynthetic
+    internal fun getComponents(entity: EntityRef) : ArrayList<Component> {
+        val archetype = entityIndex[entity.id]!!
+        return archetype.type.map { comp -> getComponent<Component>(entity, comp)!! }.toCollection(ArrayList())
+    }
+
     init {
         logger.level = Level.INFO
 
